@@ -1,4 +1,4 @@
-package turi.practice.whatsappclone
+package turi.practice.whatsappclone.activities
 
 import android.content.Context
 import android.content.Intent
@@ -12,6 +12,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_main.view.*
+import turi.practice.whatsappclone.R
 
 class MainActivity : AppCompatActivity() {
     private val firebaseAuth = FirebaseAuth.getInstance()
@@ -50,7 +51,9 @@ class MainActivity : AppCompatActivity() {
 
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
         override fun getItem(position: Int): Fragment {
-            return PlaceholderFragment.newIntent(position + 1)
+            return PlaceholderFragment.newIntent(
+                position + 1
+            )
         }
 
         override fun getCount(): Int {
@@ -74,7 +77,8 @@ class MainActivity : AppCompatActivity() {
         companion object {
             private val ARG_SECTION_NUMBER = "Section number"
             fun newIntent(sectionNumber: Int): PlaceholderFragment {
-                val fragment = PlaceholderFragment()
+                val fragment =
+                    PlaceholderFragment()
                 val args = Bundle()
                 args.putInt(ARG_SECTION_NUMBER, sectionNumber)
                 fragment.arguments = args

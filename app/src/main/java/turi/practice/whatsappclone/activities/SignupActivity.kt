@@ -1,4 +1,4 @@
-package turi.practice.whatsappclone
+package turi.practice.whatsappclone.activities
 
 import android.content.Context
 import android.content.Intent
@@ -12,10 +12,15 @@ import android.widget.EditText
 import android.widget.Toast
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.android.synthetic.main.activity_login.*
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.android.synthetic.main.activity_signup.*
+import turi.practice.whatsappclone.R
+import turi.practice.whatsappclone.util.DATA_USERS
+import turi.practice.whatsappclone.util.User
 
-class LoginActivity : AppCompatActivity() {
+class SignupActivity : AppCompatActivity() {
 
+    private val firebaseDB = FirebaseFirestore.getInstance()
     private val firebaseAuth = FirebaseAuth.getInstance()
     private val firebaseAuthListener = FirebaseAuth.AuthStateListener {
         val user = firebaseAuth.currentUser?.uid
@@ -24,11 +29,12 @@ class LoginActivity : AppCompatActivity() {
             finish()
         }
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        setContentView(R.layout.activity_login)
+        setContentView(R.layout.activity_signup)
+        setTextChangeListener(nameET, nameTIL)
+        setTextChangeListener(phoneET, phoneTIL)
         setTextChangeListener(emailET, emailTIL)
         setTextChangeListener(passwordET, passwordTIL)
         progressLayout.setOnTouchListener{v, event -> true }
@@ -48,9 +54,17 @@ class LoginActivity : AppCompatActivity() {
             }
         })
     }
-
-    fun onLogin(v: View){
-        var proceed = true
+    fun onSignup(v: View) {        var proceed = true
+        if(nameET.text.isNullOrEmpty()){
+            nameTIL.error = "Email is required"
+            nameTIL.isErrorEnabled = true
+            proceed = false
+        }
+        if(phoneET.text.isNullOrEmpty()){
+            phoneTIL.error = "Email is required"
+            phoneTIL.isErrorEnabled = true
+            proceed = false
+        }
         if(emailET.text.isNullOrEmpty()){
             emailTIL.error = "Email is required"
             emailTIL.isErrorEnabled = true
@@ -63,12 +77,18 @@ class LoginActivity : AppCompatActivity() {
         }
         if(proceed){
             progressLayout.visibility = View.VISIBLE
-            firebaseAuth.signInWithEmailAndPassword(emailET.text.toString(), passwordET.text.toString())
+            firebaseAuth.createUserWithEmailAndPassword(emailET.text.toString(), passwordET.text.toString())
                 .addOnCompleteListener { task ->
                     if(!task.isSuccessful){
-                        progressLayout.visibility = View.GONE
-                        Toast.makeText(this@LoginActivity,"Login error ${task.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@SignupActivity,"Signup error ${task.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
+                    } else if(firebaseAuth.uid != null) {
+                        val email = emailET.text.toString()
+                        val phone = phoneET.text.toString()
+                        val name = nameET.text.toString()
+                        val user = User(email, phone, name, "", "", "Hello I'm new to Clone", "")
+                        firebaseDB.collection(DATA_USERS).document(firebaseAuth.uid!!).set(user)
                     }
+                    progressLayout.visibility = View.GONE
                 }
                 .addOnFailureListener { e ->
                     progressLayout.visibility = View.GONE
@@ -76,7 +96,6 @@ class LoginActivity : AppCompatActivity() {
                 }
         }
     }
-
     override fun onStart() {
         super.onStart()
         firebaseAuth.addAuthStateListener(firebaseAuthListener)
@@ -86,12 +105,12 @@ class LoginActivity : AppCompatActivity() {
         super.onStop()
         firebaseAuth.removeAuthStateListener(firebaseAuthListener   )
     }
-    fun onSignup(v: View){
-        startActivity(SignupActivity.newIntent(this))
+    fun onLogin(v: View) {
+        startActivity(LoginActivity.newIntent(this))
         finish()
     }
 
-    companion object{
-        fun newIntent(context: Context) = Intent(context, LoginActivity::class.java)
+    companion object {
+        fun newIntent(context: Context) = Intent(context, SignupActivity::class.java)
     }
 }
