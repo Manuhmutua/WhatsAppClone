@@ -12,11 +12,18 @@ class SignupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
     }
-    fun onClick(v: View){
+
+    fun onSignup(v: View) {
         startActivity(MainActivity.newIntent(this))
         finish()
     }
-    companion object{
+
+    fun onLogin(v: View) {
+        startActivity(LoginActivity.newIntent(this))
+        finish()
+    }
+
+    companion object {
         fun newIntent(context: Context) = Intent(context, SignupActivity::class.java)
     }
 }
