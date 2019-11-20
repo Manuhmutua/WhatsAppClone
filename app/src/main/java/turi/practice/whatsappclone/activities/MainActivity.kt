@@ -37,10 +37,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
        when(item.itemId){
+           R.id.action_profile -> onProfile()
            R.id.action_logout -> onLogout()
        }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun onProfile(){
+        startActivity(ProfileActivity.newIntent(this))
     }
 
     private fun onLogout(){
