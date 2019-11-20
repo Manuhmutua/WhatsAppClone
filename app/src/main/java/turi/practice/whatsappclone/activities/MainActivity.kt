@@ -5,18 +5,27 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.*
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_main.view.*
 import turi.practice.whatsappclone.R
+import turi.practice.whatsappclone.fragments.ChatsFragment
+import turi.practice.whatsappclone.fragments.StatusFragment
+import turi.practice.whatsappclone.fragments.StatusUpdateFragment
 
 class MainActivity : AppCompatActivity() {
+
     private val firebaseAuth = FirebaseAuth.getInstance()
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
+    private val chatsFragment = ChatsFragment()
+    private val statusUpdateFragment = StatusUpdateFragment()
+    private val statusFragment = StatusFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,10 +33,37 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
         container.adapter = mSectionsPagerAdapter
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with action", Snackbar.LENGTH_SHORT)
-                .setAction("Action", null).show()
-        }
+        container.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabs))
+        tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
+        resizeTabs()
+        tabs.getTabAt(1)?.select()
+        tabs.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener{
+            override fun onTabReselected(p0: TabLayout.Tab?) {
+
+            }
+
+            override fun onTabUnselected(p0: TabLayout.Tab?) {
+            }
+
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                when(tab?.position) {
+                    0 -> {fab.hide()}
+                    1 -> {fab.show()}
+                    2 -> {fab.hide()}
+                }
+            }
+        })
+    }
+
+    fun resizeTabs(){
+        val layout = (tabs.getChildAt(0)as LinearLayout).getChildAt(0)as LinearLayout
+        val layoutParams = layout.layoutParams as LinearLayout.LayoutParams
+        layoutParams.weight = 0.4f
+        layout.layoutParams = layoutParams
+    }
+
+    fun onNewChat(v: View){
+
     }
 
     override fun onResume() {
@@ -63,39 +99,15 @@ class MainActivity : AppCompatActivity() {
 
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
         override fun getItem(position: Int): Fragment {
-            return PlaceholderFragment.newIntent(
-                position + 1
-            )
+            return when(position){
+                0 -> statusUpdateFragment
+                1 -> chatsFragment
+                else -> statusFragment
+            }
         }
 
         override fun getCount(): Int {
             return 3
-        }
-    }
-
-    class PlaceholderFragment : Fragment() {
-        override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-        ): View? {
-            val rootView = inflater.inflate(R.layout.fragment_main, container, false)
-            rootView.section_label.text =
-                "Hello World from section ${arguments?.getInt(ARG_SECTION_NUMBER)}"
-            return rootView
-        }
-
-
-        companion object {
-            private val ARG_SECTION_NUMBER = "Section number"
-            fun newIntent(sectionNumber: Int): PlaceholderFragment {
-                val fragment =
-                    PlaceholderFragment()
-                val args = Bundle()
-                args.putInt(ARG_SECTION_NUMBER, sectionNumber)
-                fragment.arguments = args
-                return fragment
-            }
         }
     }
 

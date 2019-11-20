@@ -25,4 +25,7 @@
     <string name="send_button_text">Send</string>
     <string name="button_update_status">Update status</string>
     <string name="hint_status">Status</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
