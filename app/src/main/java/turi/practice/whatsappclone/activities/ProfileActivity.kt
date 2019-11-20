@@ -19,7 +19,7 @@ import turi.practice.whatsappclone.R
 import turi.practice.whatsappclone.util.*
 
 class ProfileActivity : AppCompatActivity() {
-
+    private val firebaseAuth = FirebaseAuth.getInstance()
     private val firebaseStorage = FirebaseStorage.getInstance().reference
     private val firebaseDB = FirebaseFirestore.getInstance()
     private val userId = FirebaseAuth.getInstance().currentUser?.uid
@@ -89,7 +89,14 @@ class ProfileActivity : AppCompatActivity() {
             .setPositiveButton("Yes") { dialog, which ->
                 Toast.makeText(this, "Profile deleted", Toast.LENGTH_LONG).show()
                 firebaseDB.collection(DATA_USERS).document(userId!!).delete()
-                finish()
+                firebaseStorage.child(DATA_IMAGES).child(userId).delete()
+                firebaseAuth.currentUser?.delete()
+                    ?.addOnSuccessListener {
+                        finish()
+                    }
+                    ?.addOnFailureListener {
+                        finish()
+                    }
             }
             .setNegativeButton("Cancel") { dialog, which ->
                 progressLayout.visibility = View.GONE

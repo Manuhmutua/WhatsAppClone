@@ -30,6 +30,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if(firebaseAuth.currentUser == null ){
+            startActivity(LoginActivity.newIntent(this))
+            finish()
+        }
+    }
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
