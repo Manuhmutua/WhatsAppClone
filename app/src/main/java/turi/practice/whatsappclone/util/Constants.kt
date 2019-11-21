@@ -1,6 +1,7 @@
 package turi.practice.whatsappclone.util
 
 val REQUEST_CODE_PHOTO = 123
+val PERMISSION_REQUEST_READ_CONTACTS = 456
 val DATA_USERS = "Users"
 val DATA_USER_EMAIL = "email"
 val DATA_USER_PHONE = "phone"

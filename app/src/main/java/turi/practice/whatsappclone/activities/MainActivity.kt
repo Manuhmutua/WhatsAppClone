@@ -1,11 +1,16 @@
 package turi.practice.whatsappclone.activities
 
+import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.*
 import android.widget.LinearLayout
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -18,6 +23,7 @@ import turi.practice.whatsappclone.R
 import turi.practice.whatsappclone.fragments.ChatsFragment
 import turi.practice.whatsappclone.fragments.StatusFragment
 import turi.practice.whatsappclone.fragments.StatusUpdateFragment
+import turi.practice.whatsappclone.util.PERMISSION_REQUEST_READ_CONTACTS
 
 class MainActivity : AppCompatActivity() {
 
@@ -63,6 +69,37 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onNewChat(v: View){
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED ){
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_CONTACTS)){
+                AlertDialog.Builder(this)
+                    .setTitle("Contacts Permission")
+                    .setMessage("This app requires access to contacts to initiate conversations")
+                    .setPositiveButton("Ask me"){ dialog, which -> requestContactsPermision() }
+                    .setNegativeButton("Cancel"){dialog, which ->  }
+            } else {
+                startNewActivity()
+            }
+        }
+    }
+
+    fun requestContactsPermision(){
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CONTACTS), PERMISSION_REQUEST_READ_CONTACTS)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        when(requestCode){
+            PERMISSION_REQUEST_READ_CONTACTS -> {
+                if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    startNewActivity()
+                }
+            }
+        }
+    }
+    fun startNewActivity(){
 
     }
 
