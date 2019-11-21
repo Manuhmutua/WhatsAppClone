@@ -6,10 +6,12 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.*
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -18,17 +20,22 @@ import androidx.fragment.app.FragmentPagerAdapter
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_main.view.*
 import turi.practice.whatsappclone.R
 import turi.practice.whatsappclone.fragments.ChatsFragment
 import turi.practice.whatsappclone.fragments.StatusFragment
 import turi.practice.whatsappclone.fragments.StatusUpdateFragment
+import turi.practice.whatsappclone.listeners.FailureCallback
+import turi.practice.whatsappclone.util.DATA_USERS
+import turi.practice.whatsappclone.util.DATA_USER_PHONE
 import turi.practice.whatsappclone.util.PERMISSION_REQUEST_READ_CONTACTS
 import turi.practice.whatsappclone.util.REQUEST_NEW_CHAT
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), FailureCallback {
 
+    private val firebaseDB = FirebaseFirestore.getInstance()
     private val firebaseAuth = FirebaseAuth.getInstance()
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
     private val chatsFragment = ChatsFragment()
@@ -38,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        chatsFragment.setFailureCallbackListener(this)
         setSupportActionBar(toolbar)
         mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
         container.adapter = mSectionsPagerAdapter
@@ -61,6 +69,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    override fun onUserError() {
+        Toast.makeText(this,"User not found", Toast.LENGTH_LONG).show()
+        startActivity(LoginActivity.newIntent(this))
+        finish()
     }
 
     fun resizeTabs(){
@@ -111,11 +125,43 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(resultCode == Activity.RESULT_OK){
             when(requestCode){
-                REQUEST_NEW_CHAT -> {}
+                REQUEST_NEW_CHAT -> {
+                    val name = data?.getStringExtra(PARAM_NAME) ?: ""
+                    val phone = data?.getStringExtra(PARAM_PHONE) ?: ""
+                    checkNewChatUser(name, phone)
+                }
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
+
+    private fun checkNewChatUser(name: String, phone: String){
+        if(!name.isNullOrEmpty() && !phone.isNullOrEmpty())
+            firebaseDB.collection(DATA_USERS).whereEqualTo(DATA_USER_PHONE, phone)
+                .get()
+                .addOnSuccessListener { result ->
+                    if (result.documents.size > 0 ){
+                        chatsFragment.newChat(result.documents[0].id)
+                    } else {
+                        AlertDialog.Builder(this)
+                            .setTitle("User not found")
+                            .setMessage("$name does not have an account. Would you like to send an SMS invite")
+                            .setPositiveButton("Confirm"){ dialog, which ->
+                                val intent = Intent(Intent.ACTION_VIEW)
+                                intent.data = Uri.parse("sms:$phone")
+                                intent.putExtra("sms_body","Hi, I'm using this new cool WhatsAppClone App. You should Install it too so we can chat there")
+                                startActivity(intent)
+                            }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this,"An error occurred. Please try again later", Toast.LENGTH_LONG).show()
+                    e.printStackTrace()
+                }
+    }
+
     override fun onResume() {
         super.onResume()
         if(firebaseAuth.currentUser == null ){
