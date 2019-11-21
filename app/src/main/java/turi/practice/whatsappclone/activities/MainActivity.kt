@@ -1,6 +1,7 @@
 package turi.practice.whatsappclone.activities
 
 import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -24,6 +25,7 @@ import turi.practice.whatsappclone.fragments.ChatsFragment
 import turi.practice.whatsappclone.fragments.StatusFragment
 import turi.practice.whatsappclone.fragments.StatusUpdateFragment
 import turi.practice.whatsappclone.util.PERMISSION_REQUEST_READ_CONTACTS
+import turi.practice.whatsappclone.util.REQUEST_NEW_CHAT
 
 class MainActivity : AppCompatActivity() {
 
@@ -76,9 +78,12 @@ class MainActivity : AppCompatActivity() {
                     .setMessage("This app requires access to contacts to initiate conversations")
                     .setPositiveButton("Ask me"){ dialog, which -> requestContactsPermision() }
                     .setNegativeButton("Cancel"){dialog, which ->  }
+                    .show()
             } else {
-                startNewActivity()
+                requestContactsPermision()
             }
+        } else {
+            startNewActivity()
         }
     }
 
@@ -100,9 +105,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
     fun startNewActivity(){
-
+        startActivityForResult(ContactsActivity.newIntent(this), REQUEST_NEW_CHAT)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(resultCode == Activity.RESULT_OK){
+            when(requestCode){
+                REQUEST_NEW_CHAT -> {}
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
     override fun onResume() {
         super.onResume()
         if(firebaseAuth.currentUser == null ){
@@ -151,6 +164,8 @@ class MainActivity : AppCompatActivity() {
 
 
     companion object {
+        val PARAM_NAME = "Param name"
+        val PARAM_PHONE = "Param phone"
         fun newIntent(context: Context) = Intent(context, MainActivity::class.java)
     }
 
