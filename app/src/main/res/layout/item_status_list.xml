@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/itemLayout"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/chat_image_size"
+    android:layout_margin="@dimen/grid_2"
+    android:gravity="center_vertical"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/itemCV"
+        android:layout_width="@dimen/chat_image_size"
+        android:layout_height="@dimen/chat_image_size"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentLeft="true"
+        android:padding="@dimen/grid_2"
+        app:cardCornerRadius="@dimen/card_corner_radius">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:scaleType="center"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingLeft="@dimen/grid_2"
+            android:orientation="vertical"
+            android:layout_toRightOf = "@id/itemCV"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/itemNameTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Text Name"
+                style="@style/Title"/>
+            <TextView
+                android:id="@+id/itemTimeTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Text"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</RelativeLayout>
