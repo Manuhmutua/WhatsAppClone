@@ -13,6 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.fragment_status_list.*
 
 import turi.practice.whatsappclone.R
+import turi.practice.whatsappclone.activities.StatusActivity
 import turi.practice.whatsappclone.adapters.StatusListAdapter
 import turi.practice.whatsappclone.listeners.StatusItemClickListener
 import turi.practice.whatsappclone.util.DATA_USERS
@@ -35,7 +36,7 @@ class StatusListFragment : Fragment(), StatusItemClickListener {
     }
 
     override fun onItemClicked(statusElement: StatusListElement) {
-
+        startActivity(StatusActivity.newIntent(context, statusElement))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
