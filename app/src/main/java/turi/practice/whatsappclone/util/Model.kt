@@ -24,3 +24,11 @@ data class Message(
     val message: String? = "",
     val messageTime: Long? = 0
 )
+
+data class StatusListElement(
+    val userName: String?,
+    val userUrl: String?,
+    val status: String?,
+    val statusUrl: String?,
+    val statusTime: String?
+)

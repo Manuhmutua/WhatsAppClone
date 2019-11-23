@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity(), FailureCallback {
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
     private val chatsFragment = ChatsFragment()
     private val statusUpdateFragment = StatusUpdateFragment()
-    private val statusFragment =  StatusListFragment()
+    private val statusListFragment =  StatusListFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +60,9 @@ class MainActivity : AppCompatActivity(), FailureCallback {
                 when(tab?.position) {
                     0 -> {fab.hide()}
                     1 -> {fab.show()}
-                    2 -> {fab.hide()}
+                    2 -> {
+                        fab.hide()
+                        statusListFragment.onVisible()}
                 }
             }
         })
@@ -202,7 +204,7 @@ class MainActivity : AppCompatActivity(), FailureCallback {
             return when(position){
                 0 -> statusUpdateFragment
                 1 -> chatsFragment
-                else -> statusFragment
+                else -> statusListFragment
             }
         }
 
