@@ -14,6 +14,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.fragment_chats.*
 
 import turi.practice.whatsappclone.R
+import turi.practice.whatsappclone.activities.ConversationActivity
 import turi.practice.whatsappclone.adapters.ChatsAdapter
 import turi.practice.whatsappclone.listeners.ChatClickListener
 import turi.practice.whatsappclone.listeners.FailureCallback
@@ -133,7 +134,7 @@ class ChatsFragment : Fragment(), ChatClickListener {
         chatImageUrl: String?,
         chatName: String?
     ) {
-        Toast.makeText(context,"$name clicked", Toast.LENGTH_LONG).show()
+        startActivity(ConversationActivity.newIntent(context))
     }
 
 

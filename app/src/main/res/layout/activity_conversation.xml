@@ -28,6 +28,7 @@
                 android:layout_width="@dimen/standard_height"
                 android:layout_height="@dimen/standard_height"
                 android:layout_marginRight="@dimen/grid_1"
+                android:layout_margin="@dimen/grid_2"
                 android:scaleType="center" />
         </androidx.cardview.widget.CardView>
 
@@ -41,6 +42,7 @@
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/messagesRV"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/messageET"
