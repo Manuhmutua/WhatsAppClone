@@ -12,7 +12,8 @@
         android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.ConversationActivity"></activity>
+        <activity android:name=".activities.StatusActivity"></activity>
+        <activity android:name=".activities.ConversationActivity" />
         <activity android:name=".activities.ContactsActivity" />
         <activity
             android:name=".activities.ProfileActivity"
