@@ -17,6 +17,10 @@ import turi.practice.whatsappclone.R
 import turi.practice.whatsappclone.adapters.ChatsAdapter
 import turi.practice.whatsappclone.listeners.ChatClickListener
 import turi.practice.whatsappclone.listeners.FailureCallback
+import turi.practice.whatsappclone.util.Chat
+import turi.practice.whatsappclone.util.DATA_CHATS
+import turi.practice.whatsappclone.util.DATA_USERS
+import turi.practice.whatsappclone.util.DATA_USER_CHATS
 
 class ChatsFragment : Fragment(), ChatClickListener {
     private var chatsAdapter = ChatsAdapter(arrayListOf())
@@ -52,12 +56,75 @@ class ChatsFragment : Fragment(), ChatClickListener {
             adapter = chatsAdapter
             addItemDecoration(DividerItemDecoration(context,DividerItemDecoration.VERTICAL))
         }
-        var chatList = arrayListOf<String>("Chat 1 ", "Chat 2", "Chat 3","Chat 4 ", "Chat 5", "Chat 6","Chat 7 ", "Chat 8", "Chat 9")
-        chatsAdapter.updateChats(chatList)
+       firebaseDB.collection(DATA_USERS).document(userId!!).addSnapshotListener{ documentSnapshot , firebaseFirestoreException ->
+           if (firebaseFirestoreException == null){
+               refreshChats()
+           }
+       }
+    }
+
+    private fun refreshChats(){
+        firebaseDB.collection(DATA_USERS)
+            .document(userId!!)
+            .get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.contains(DATA_USER_CHATS)){
+                    val partners = documentSnapshot[DATA_USER_CHATS]
+                    val chats = arrayListOf<String>()
+                    for(partner in (partners as HashMap<String,String>).keys){
+                        if (partners[partner] != null){
+                            chats.add(partners[partner]!!)
+                        }
+                    }
+                    chatsAdapter.updateChats(chats)
+                }
+            }
     }
 
     fun newChat(partnerId: String){
+        firebaseDB.collection(DATA_USERS)
+            .document(userId!!)
+            .get()
+            .addOnSuccessListener { userDocument ->
+                val userChatPartners = hashMapOf<String, String>()
+                if(userDocument[DATA_USER_CHATS] != null && userDocument[DATA_USER_CHATS] is HashMap<*,*>){
+                    val userDocumentMap = userDocument[DATA_USER_CHATS] as HashMap<String,String>
+                    if (userDocumentMap.containsKey(partnerId)){
+                        return@addOnSuccessListener
+                    } else {
+                        userChatPartners.putAll(userDocumentMap)
+                    }
+                }
+                firebaseDB.collection(DATA_USERS)
+                    .document(partnerId)
+                    .get()
+                    .addOnSuccessListener { partnerDocument ->
+                        val partnerChatPartners = hashMapOf<String, String>()
+                        if (partnerDocument[DATA_USER_CHATS] != null && partnerDocument[DATA_USER_CHATS] is HashMap<*,*>){
+                            val partnerDocumentMap = partnerDocument[DATA_USER_CHATS] as HashMap<String, String>
+                            partnerChatPartners.putAll(partnerDocumentMap)
+                        }
 
+                        val chatParticipants = arrayListOf(userId, partnerId)
+                        val chat = Chat(chatParticipants)
+                        val chatRef = firebaseDB.collection(DATA_CHATS).document()
+                        val userRef = firebaseDB.collection(DATA_USERS).document(userId)
+                        val partnerRef = firebaseDB.collection(DATA_USERS).document(partnerId)
+                        userChatPartners[partnerId] = chatRef.id
+                        partnerChatPartners[userId] = chatRef.id
+                        val batch = firebaseDB.batch()
+                        batch.set(chatRef, chat)
+                        batch.update(userRef, DATA_USER_CHATS, userChatPartners)
+                        batch.update(partnerRef, DATA_USER_CHATS, partnerChatPartners)
+                        batch.commit()
+                    }
+                    .addOnFailureListener { e ->
+                        e.printStackTrace()
+                    }
+            }
+            .addOnFailureListener { e ->
+                e.printStackTrace()
+            }
     }
 
     override fun onChatClicked(
