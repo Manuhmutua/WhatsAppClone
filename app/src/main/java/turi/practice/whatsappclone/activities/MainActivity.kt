@@ -17,21 +17,16 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_main.view.*
 import turi.practice.whatsappclone.R
 import turi.practice.whatsappclone.fragments.ChatsFragment
-import turi.practice.whatsappclone.fragments.StatusFragment
 import turi.practice.whatsappclone.fragments.StatusUpdateFragment
+import turi.practice.whatsappclone.fragments.StatusListFragment
 import turi.practice.whatsappclone.listeners.FailureCallback
-import turi.practice.whatsappclone.util.DATA_USERS
-import turi.practice.whatsappclone.util.DATA_USER_PHONE
-import turi.practice.whatsappclone.util.PERMISSION_REQUEST_READ_CONTACTS
-import turi.practice.whatsappclone.util.REQUEST_NEW_CHAT
+import turi.practice.whatsappclone.util.*
 
 class MainActivity : AppCompatActivity(), FailureCallback {
 
@@ -40,7 +35,7 @@ class MainActivity : AppCompatActivity(), FailureCallback {
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
     private val chatsFragment = ChatsFragment()
     private val statusUpdateFragment = StatusUpdateFragment()
-    private val statusFragment = StatusFragment()
+    private val statusFragment =  StatusListFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,7 +92,7 @@ class MainActivity : AppCompatActivity(), FailureCallback {
                 requestContactsPermision()
             }
         } else {
-            startNewActivity()
+            startNewActivity(REQUEST_NEW_CHAT)
         }
     }
 
@@ -113,18 +108,27 @@ class MainActivity : AppCompatActivity(), FailureCallback {
         when(requestCode){
             PERMISSION_REQUEST_READ_CONTACTS -> {
                 if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    startNewActivity()
+                    startNewActivity(REQUEST_NEW_CHAT)
                 }
             }
         }
     }
-    fun startNewActivity(){
-        startActivityForResult(ContactsActivity.newIntent(this), REQUEST_NEW_CHAT)
+    fun startNewActivity(requestCode: Int){
+        when(requestCode){
+            REQUEST_NEW_CHAT -> startActivityForResult(ContactsActivity.newIntent(this), REQUEST_NEW_CHAT)
+            REQUEST_CODE_PHOTO -> {
+                val intent = Intent(Intent.ACTION_PICK)
+                intent.type = "image/*"
+                startActivityForResult(intent, REQUEST_CODE_PHOTO)
+            }
+        }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(resultCode == Activity.RESULT_OK){
             when(requestCode){
+                REQUEST_CODE_PHOTO -> statusUpdateFragment.storeImage(data?.data)
                 REQUEST_NEW_CHAT -> {
                     val name = data?.getStringExtra(PARAM_NAME) ?: ""
                     val phone = data?.getStringExtra(PARAM_PHONE) ?: ""

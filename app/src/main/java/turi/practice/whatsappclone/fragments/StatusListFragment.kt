@@ -9,15 +9,14 @@ import android.view.ViewGroup
 
 import turi.practice.whatsappclone.R
 
-
-class StatusFragment : Fragment() {
+class StatusListFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-        return inflater.inflate(R.layout.fragment_status, container, false)
+        return inflater.inflate(R.layout.fragment_status_list, container, false)
     }
 
 
