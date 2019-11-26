@@ -80,6 +80,7 @@ class LoginActivity : AppCompatActivity() {
                     e.printStackTrace()
                 }
         }
+
     }
 
     override fun onStart() {

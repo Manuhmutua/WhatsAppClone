@@ -64,6 +64,7 @@ class ConversationActivity : AppCompatActivity() {
                                      messagesRV.post{
                                          messagesRV.smoothScrollToPosition(conversationAdapter.itemCount -1)
                                      }
+                                     NotificationsHelper(applicationContext).createNotification()
                                  }
                              }
                          }
