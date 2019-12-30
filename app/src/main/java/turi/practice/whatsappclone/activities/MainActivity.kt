@@ -7,11 +7,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -23,8 +25,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_main.*
 import turi.practice.whatsappclone.R
 import turi.practice.whatsappclone.fragments.ChatsFragment
-import turi.practice.whatsappclone.fragments.StatusUpdateFragment
 import turi.practice.whatsappclone.fragments.StatusListFragment
+import turi.practice.whatsappclone.fragments.StatusUpdateFragment
 import turi.practice.whatsappclone.listeners.FailureCallback
 import turi.practice.whatsappclone.util.*
 
@@ -35,7 +37,7 @@ class MainActivity : AppCompatActivity(), FailureCallback {
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
     private val chatsFragment = ChatsFragment()
     private val statusUpdateFragment = StatusUpdateFragment()
-    private val statusListFragment =  StatusListFragment()
+    private val statusListFragment = StatusListFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +50,7 @@ class MainActivity : AppCompatActivity(), FailureCallback {
         tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
         resizeTabs()
         tabs.getTabAt(1)?.select()
-        tabs.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener{
+        tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(p0: TabLayout.Tab?) {
 
             }
@@ -57,39 +59,44 @@ class MainActivity : AppCompatActivity(), FailureCallback {
             }
 
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                when(tab?.position) {
-                    0 -> {fab.hide()}
-                    1 -> {fab.show()}
+                when (tab?.position) {
+                    0 -> {
+                        fab.hide()
+                    }
+                    1 -> {
+                        fab.show()
+                    }
                     2 -> {
                         fab.hide()
-                        statusListFragment.onVisible()}
+                        statusListFragment.onVisible()
+                    }
                 }
             }
         })
     }
 
     override fun onUserError() {
-        Toast.makeText(this,"User not found", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "User not found", Toast.LENGTH_LONG).show()
         startActivity(LoginActivity.newIntent(this))
         finish()
     }
 
-    fun resizeTabs(){
-        val layout = (tabs.getChildAt(0)as LinearLayout).getChildAt(0)as LinearLayout
+    fun resizeTabs() {
+        val layout = (tabs.getChildAt(0) as LinearLayout).getChildAt(0) as LinearLayout
         val layoutParams = layout.layoutParams as LinearLayout.LayoutParams
         layoutParams.weight = 0.4f
         layout.layoutParams = layoutParams
     }
 
-    fun onNewChat(v: View){
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED ){
-            if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_CONTACTS)){
+    fun onNewChat(v: View) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
                 AlertDialog.Builder(this)
-                    .setTitle("Contacts Permission")
-                    .setMessage("This app requires access to contacts to initiate conversations")
-                    .setPositiveButton("Ask me"){ dialog, which -> requestContactsPermision() }
-                    .setNegativeButton("Cancel"){dialog, which ->  }
-                    .show()
+                        .setTitle("Contacts Permission")
+                        .setMessage("This app requires access to contacts to initiate conversations")
+                        .setPositiveButton("Ask me") { dialog, which -> requestContactsPermision() }
+                        .setNegativeButton("Cancel") { dialog, which -> }
+                        .show()
             } else {
                 requestContactsPermision()
             }
@@ -98,25 +105,26 @@ class MainActivity : AppCompatActivity(), FailureCallback {
         }
     }
 
-    fun requestContactsPermision(){
+    fun requestContactsPermision() {
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CONTACTS), PERMISSION_REQUEST_READ_CONTACTS)
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+            requestCode: Int,
+            permissions: Array<out String>,
+            grantResults: IntArray
     ) {
-        when(requestCode){
+        when (requestCode) {
             PERMISSION_REQUEST_READ_CONTACTS -> {
-                if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     startNewActivity(REQUEST_NEW_CHAT)
                 }
             }
         }
     }
-    fun startNewActivity(requestCode: Int){
-        when(requestCode){
+
+    fun startNewActivity(requestCode: Int) {
+        when (requestCode) {
             REQUEST_NEW_CHAT -> startActivityForResult(ContactsActivity.newIntent(this), REQUEST_NEW_CHAT)
             REQUEST_CODE_PHOTO -> {
                 val intent = Intent(Intent.ACTION_PICK)
@@ -128,8 +136,8 @@ class MainActivity : AppCompatActivity(), FailureCallback {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if(resultCode == Activity.RESULT_OK){
-            when(requestCode){
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
                 REQUEST_CODE_PHOTO -> statusUpdateFragment.storeImage(data?.data)
                 REQUEST_NEW_CHAT -> {
                     val name = data?.getStringExtra(PARAM_NAME) ?: ""
@@ -141,63 +149,70 @@ class MainActivity : AppCompatActivity(), FailureCallback {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun checkNewChatUser(name: String,  phone: String){
+    private fun checkNewChatUser(name: String, phone: String) {
         var cleanPhone = phone
-        if(!name.isNullOrEmpty() && !phone.isNullOrEmpty())
-            if(phone.startsWith("+254")){
-               cleanPhone = phone.replaceFirst("+254","07")
+        if (!name.isNullOrEmpty() && !phone.isNullOrEmpty())
+
+            // clean phone number if it starts with +254 to start with 07
+            if (phone.startsWith("+254")) {
+                cleanPhone = phone.replaceFirst("+254", "07").trim()
             }
-            firebaseDB.collection(DATA_USERS).whereEqualTo(DATA_USER_PHONE, cleanPhone)
+
+        // remove white space from phone number
+        cleanPhone = cleanPhone.replace("\\s".toRegex(), "")
+        firebaseDB.collection(DATA_USERS).whereEqualTo(DATA_USER_PHONE, cleanPhone)
                 .get()
+
                 .addOnSuccessListener { result ->
-                    if (result.documents.size > 0 ){
+                    if (result.documents.size > 0) {
                         chatsFragment.newChat(result.documents[0].id)
                     } else {
                         AlertDialog.Builder(this)
-                            .setTitle("User not found")
-                            .setMessage("$name does not have an account. Would you like to send an SMS invite")
-                            .setPositiveButton("Confirm"){ dialog, which ->
-                                val intent = Intent(Intent.ACTION_VIEW)
-                                intent.data = Uri.parse("sms:$phone")
-                                intent.putExtra("sms_body","Hi, I'm using this new cool WhatsAppClone App. You should Install it too so we can chat there")
-                                startActivity(intent)
-                            }
-                            .setNegativeButton("Cancel", null)
-                            .show()
+                                .setTitle("User not found")
+                                .setMessage("$name does not have an account. Would you like to send an SMS invite")
+                                .setPositiveButton("Confirm") { dialog, which ->
+                                    val intent = Intent(Intent.ACTION_VIEW)
+                                    intent.data = Uri.parse("sms:$phone")
+                                    intent.putExtra("sms_body", "Hi, I'm using this new cool WhatsAppClone App. You should Install it too so we can chat there")
+                                    startActivity(intent)
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
                     }
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(this,"An error occurred. Please try again later", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "An error occurred. Please try again later", Toast.LENGTH_LONG).show()
                     e.printStackTrace()
                 }
     }
 
     override fun onResume() {
         super.onResume()
-        if(firebaseAuth.currentUser == null ){
+        if (firebaseAuth.currentUser == null) {
             startActivity(LoginActivity.newIntent(this))
             finish()
         }
     }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-       when(item.itemId){
-           R.id.action_profile -> onProfile()
-           R.id.action_logout -> onLogout()
-       }
+        when (item.itemId) {
+            R.id.action_profile -> onProfile()
+            R.id.action_logout -> onLogout()
+        }
 
         return super.onOptionsItemSelected(item)
     }
 
-    private fun onProfile(){
+    private fun onProfile() {
         startActivity(ProfileActivity.newIntent(this))
     }
 
-    private fun onLogout(){
+    private fun onLogout() {
         firebaseAuth.signOut()
         startActivity(LoginActivity.newIntent(this))
         finish()
@@ -205,7 +220,7 @@ class MainActivity : AppCompatActivity(), FailureCallback {
 
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
         override fun getItem(position: Int): Fragment {
-            return when(position){
+            return when (position) {
                 0 -> statusUpdateFragment
                 1 -> chatsFragment
                 else -> statusListFragment
@@ -216,7 +231,6 @@ class MainActivity : AppCompatActivity(), FailureCallback {
             return 3
         }
     }
-
 
 
     companion object {
