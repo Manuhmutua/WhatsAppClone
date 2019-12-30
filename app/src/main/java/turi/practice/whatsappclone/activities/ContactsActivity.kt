@@ -27,7 +27,7 @@ class ContactsActivity : AppCompatActivity(), ContactsClickListener {
         progressLayout.visibility = View.VISIBLE
         contactsList.clear()
         val newList = ArrayList<Contact>()
-        val phones = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,null, null, null)
+        val phones = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC")
             while (phones!!.moveToNext()){
                 val name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
                 val phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))

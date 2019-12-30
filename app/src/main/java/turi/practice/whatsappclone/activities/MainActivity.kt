@@ -141,9 +141,13 @@ class MainActivity : AppCompatActivity(), FailureCallback {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun checkNewChatUser(name: String, phone: String){
+    private fun checkNewChatUser(name: String,  phone: String){
+        var cleanPhone = phone
         if(!name.isNullOrEmpty() && !phone.isNullOrEmpty())
-            firebaseDB.collection(DATA_USERS).whereEqualTo(DATA_USER_PHONE, phone)
+            if(phone.startsWith("+254")){
+               cleanPhone = phone.replaceFirst("+254","07")
+            }
+            firebaseDB.collection(DATA_USERS).whereEqualTo(DATA_USER_PHONE, cleanPhone)
                 .get()
                 .addOnSuccessListener { result ->
                     if (result.documents.size > 0 ){
